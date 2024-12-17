@@ -36,6 +36,7 @@ form.addEventListener('submit', async e => {
     });
     return;
   }
+  form.reset();
 
   page = 1;
   totalHits = 0;

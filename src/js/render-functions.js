@@ -28,4 +28,21 @@ export const toggleLoadMoreButton = isVisible => {
   }
 };
 
+export const toggleLoader = isVisible => {
+  const loader = document.querySelector('.loader');
+  if (isVisible) {
+    loader.style.display = 'block';
+  } else {
+    loader.style.display = 'none';
+  }
+};
 
+export const showEndMessage = () => {
+  const loadMoreButton = document.querySelector('.load-more');
+  loadMoreButton.style.display = 'none';
+
+  iziToast.warning({
+    title: 'No more results',
+    message: "We're sorry, but you've reached the end of search results.",
+  });
+};

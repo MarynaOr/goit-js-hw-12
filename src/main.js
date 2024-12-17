@@ -1,68 +1,76 @@
-import { fetchImg } from "./js/pixabay-api";
-import { createMarkup, showLoadingMessage, hideLoadingMessage,} from "./js/render-functions";
-
-
+import { fetchImages } from './js/pixabay-api.js';
+import {
+  renderImages,
+  toggleLoadMoreButton,
+  toggleLoader,
+  showEndMessage,
+} from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const form = document.querySelector('.form')
-const gallery = document.querySelector('.gallery')
-const loader = document.querySelector('.loader')
-let search ='';
+let searchQuery = '';
+let page = 1;
+let totalHits = 0;
 
-const galleryImage = new SimpleLightbox('.gallery a', {
-    captionsData: 'alt',
-    captionDelay: 300,
-  });
+const form = document.querySelector('.form');
+const loadMoreButton = document.querySelector('.load-more');
+const gallery = document.querySelector('.gallery');
 
-form.addEventListener('submit', handleSubmit)
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  searchQuery = e.target.elements.search.value.trim();
 
-function handleSubmit (e){
-    e.preventDefault();
-    search =e.target.elements.search.value.trim();
-
-    if(search === ''){
-        iziToast.warning({
-            title: 'Caution',
-            message: 'The field is empty, please type your request',
-          
-        })
-        return
-    }
-    if(search){
-        showLoadingMessage(loader)
-    }
-
-
-
-fetchImg(search)
-.then(response => {
-  if (response.total === 0) {
-    gallery.innerHTML = '';
-    throw new Error();
+  if (!searchQuery) {
+    return;
   }
-  hideLoadingMessage(loader);
 
-  return response.data.hits;
-})
-.then(image => {
-    gallery.innerHTML = '';
-    hideLoadingMessage(loader);
+  page = 1;
+  totalHits = 0;
+  clearGallery();
 
-    gallery.innerHTML = createMarkup(image);
-    search = '';
-    galleryImage.refresh();
-  })
-  .catch(() => {
-    iziToast.error({
-      title: 'Error',
-      message:
-        'Sorry, there are no images matching your search query. Please try again!',
-    });
-  });
+  toggleLoader(true);
+  const data = await fetchImages(searchQuery, page);
+  toggleLoader(false);
 
+  if (data && data.hits.length > 0) {
+    renderImages(data.hits);
+    totalHits = data.totalHits;
+    toggleLoadMoreButton(true);
+  }
 
-}
+  if (totalHits <= page * 15) {
+    toggleLoadMoreButton(false);
+    showEndMessage();
+  }
+});
+
+const clearGallery = () => {
+  gallery.innerHTML = '';
+};
+loadMoreButton.addEventListener('click', async () => {
+  page += 1;
+
+  toggleLoader(true);
+  const data = await fetchImages(searchQuery, page);
+  toggleLoader(false);
+
+  if (data && data.hits.length > 0) {
+    renderImages(data.hits);
+    totalHits = data.totalHits;
+  }
+
+  if (page * 15 >= totalHits) {
+    toggleLoadMoreButton(false);
+    showEndMessage(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
+  if (data?.hits?.length === 0) {
+    toggleLoadMoreButton(false);
+    showEndMessage('No results found. Try another search.');
+    return;
+  }
+});

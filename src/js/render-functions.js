@@ -8,17 +8,35 @@ export const renderImages = images => {
   const markup = images
     .map(
       image => `
-      <li class="gallery-item">
-        <a href="${image.largeImageURL}" data-lightbox="gallery">
-          <img src="${image.webformatURL}" alt="${image.tags}" />
-        </a>
-      </li>`
+      <li class='item-gallery' data-id='${image.id}'>
+      <a class='link-gallery' href='${image.largeImageURL}'>
+        <img 
+          class='img-gallery'
+          src='${image.webformatURL}'
+          alt='${image.tags}'
+          loading="lazy"
+        >
+        <ul>
+          <li class='info-img'><span>Likes</span>${image.likes}</li>
+          <li class='info-img'><span>Views</span>${image.views}</li>
+          <li class='info-img'><span>Comments</span>${image.comments}</li>
+          <li class='info-img'><span>Downloads</span>${image.downloads}</li>
+        </ul>
+      </a>
+    </li>
+      `
     )
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
 };
 
-
+{
+  /* <li class="gallery-item">
+        <a href="${image.largeImageURL}" class='a' data-lightbox="gallery">
+          <img src="${image.webformatURL}" alt="${image.tags}" />
+        </a>
+      </li> */
+}
 export const toggleLoadMoreButton = isVisible => {
   const loadMoreButton = document.querySelector('.load-more');
   if (isVisible) {

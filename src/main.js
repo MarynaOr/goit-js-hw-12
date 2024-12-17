@@ -19,11 +19,21 @@ const form = document.querySelector('.form');
 const loadMoreButton = document.querySelector('.load-more');
 const gallery = document.querySelector('.gallery');
 
+let galleryLightbox = new SimpleLightbox('.item-gallery a', {
+  captionsData: 'alt',
+  captionDelay: 300,
+  className: 'bg-color',
+});
+
 form.addEventListener('submit', async e => {
   e.preventDefault();
   searchQuery = e.target.elements.search.value.trim();
 
   if (!searchQuery) {
+    iziToast.error({
+      title: 'Error',
+      message: 'nothing entered',
+    });
     return;
   }
 
@@ -39,6 +49,8 @@ form.addEventListener('submit', async e => {
     renderImages(data.hits);
     totalHits = data.totalHits;
     toggleLoadMoreButton(true);
+
+    galleryLightbox.refresh();
   }
 
   if (totalHits <= page * 15) {
@@ -49,7 +61,9 @@ form.addEventListener('submit', async e => {
 
 const clearGallery = () => {
   gallery.innerHTML = '';
+  galleryLightbox.refresh();
 };
+
 loadMoreButton.addEventListener('click', async () => {
   page += 1;
 
@@ -60,6 +74,8 @@ loadMoreButton.addEventListener('click', async () => {
   if (data && data.hits.length > 0) {
     renderImages(data.hits);
     totalHits = data.totalHits;
+
+    galleryLightbox.refresh();
   }
 
   if (page * 15 >= totalHits) {
@@ -68,18 +84,10 @@ loadMoreButton.addEventListener('click', async () => {
       "We're sorry, but you've reached the end of search results."
     );
   }
+
   if (data?.hits?.length === 0) {
     toggleLoadMoreButton(false);
     showEndMessage('No results found. Try another search.');
     return;
   }
-});
-let galleryLightbox = new SimpleLightbox('.gallery a', {
-  captions: true,
-  captionsData: 'alt',
-  captionDelay: 250,
-  captionPosition: 'bottom',
-});
-galleryLightbox.on('error.simplelightbox', function (error) {
-  showEror(error);
 });

@@ -18,6 +18,8 @@ let totalHits = 0;
 const form = document.querySelector('.form');
 const loadMoreButton = document.querySelector('.load-more');
 const gallery = document.querySelector('.gallery');
+const loadMore = document.querySelector('.load-more');
+const loader = document.querySelector('.loader');
 
 let galleryLightbox = new SimpleLightbox('.item-gallery a', {
   captionsData: 'alt',
@@ -66,16 +68,16 @@ const clearGallery = () => {
 };
 
 loadMoreButton.addEventListener('click', async () => {
+  toggleLoader(true);
+  toggleLoadMoreButton(false);
+
   page += 1;
 
-  toggleLoader(true);
   const data = await fetchImages(searchQuery, page);
-  toggleLoader(false);
 
   if (data && data.hits.length > 0) {
     renderImages(data.hits);
     totalHits = data.totalHits;
-
     galleryLightbox.refresh();
   }
 
@@ -91,4 +93,15 @@ loadMoreButton.addEventListener('click', async () => {
     showEndMessage('No results found. Try another search.');
     return;
   }
+
+  window.scrollBy({
+    top: 1000,
+    left: 0,
+    behavior: 'smooth',
+  });
+
+  setTimeout(() => {
+    toggleLoader(false);
+    toggleLoadMoreButton(true);
+  }, 1000);
 });

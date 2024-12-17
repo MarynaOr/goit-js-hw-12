@@ -15,6 +15,8 @@ export const renderImages = images => {
           src='${image.webformatURL}'
           alt='${image.tags}'
           loading="lazy"
+          width='360'
+          height='200'
         >
         <ul>
           <li class='info-img'><span>Likes</span>${image.likes}</li>

@@ -74,3 +74,12 @@ loadMoreButton.addEventListener('click', async () => {
     return;
   }
 });
+let galleryLightbox = new SimpleLightbox('.gallery a', {
+  captions: true,
+  captionsData: 'alt',
+  captionDelay: 250,
+  captionPosition: 'bottom',
+});
+galleryLightbox.on('error.simplelightbox', function (error) {
+  showEror(error);
+});
